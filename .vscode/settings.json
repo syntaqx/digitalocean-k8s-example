@@ -1,0 +1,5 @@
+{
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": "file:///c%3A/Workspaces/syntaqx/digitalocean-k8s-example/.github/workflows/deploy.yml"
+  }
+}
