@@ -27,6 +27,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       -
+        name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      -
+        name: Save kubeconfig
+        run: doctl kubernetes cluster kubeconfig save 1c672ab6-84e9-407c-89f3-09cd9b8d5ee5
+      -
         name: Setup Kustomize
         run: |-
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
@@ -36,4 +44,4 @@ jobs:
         name: Deploy
         run: |-
           # kustomize edit set image syntaqx/echo=${{ needs.build.outputs.image }}
-          kustomize build .
+          kustomize build . | kubectl apply -f -
