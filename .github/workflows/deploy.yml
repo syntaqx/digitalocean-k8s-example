@@ -1,0 +1,39 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: "0 11 * * *" # 11:00 Daily
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image: syntaqx/echo:latest
+    steps:
+      - run: echo "build goes here..."
+
+  deployment:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: 'http://echo.syntaqx.io'
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v3
+      -
+        name: Setup Kustomize
+        run: |-
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          mv kustomize /usr/local/bin/kustomize
+          chmod +x /usr/local/bin/kustomize
+      -
+        name: Deploy
+        run: |-
+          # kustomize edit set image syntaqx/echo=${{ needs.build.outputs.image }}
+          kustomize build .
